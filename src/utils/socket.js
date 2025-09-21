@@ -3,11 +3,15 @@ import { useEffect, useState } from "react";
 import io from "socket.io-client";
 
 const socketConnection = () => {
+  const baseUrl =
+    import.meta.env.DEV === true
+      ? "http://localhost:4002"
+      : "https://chat-app-backend-okz5.onrender.com";
   const socketRef = useRef(null);
   const [connected, setConnected] = useState(false);
   const user = JSON?.parse(localStorage?.getItem("user"));
   useEffect(() => {
-    const socket = io("http://localhost:4002", {
+    const socket = io(baseUrl, {
       withCredentials: true,
       query: {
         userId: user?._id,
