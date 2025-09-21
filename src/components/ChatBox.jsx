@@ -41,9 +41,6 @@ const ChatBox = ({ userName, closeChat }) => {
   const chatList = useSelector((state) => state?.chat?.chatMap[roomId] || []);
   const { userProfile } = useSelector((state) => state?.user || {});
 
-  const sortedMessages = [...chatList].sort(
-    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-  );
   const handleChange = (e) => {
     setText(e.target.value);
   };
@@ -92,9 +89,7 @@ const ChatBox = ({ userName, closeChat }) => {
   const [callingTo, setCallingTo] = useState(null);
   const [inCallWith, setInCallWith] = useState(null);
   const [incomingCall, setIncomingCall] = useState(null);
-  const [callStatus, setCallStatus] = useState(""); // idle, calling, in-call
-  //  const [email, setEmail] = useState("");
-  //  const socketRef = socketConnection().socket;
+  const [callStatus, setCallStatus] = useState("");
 
   const pcRef = useRef(null);
   const localStreamRef = useRef(null);
@@ -104,7 +99,6 @@ const ChatBox = ({ userName, closeChat }) => {
   const ICE_SERVERS = {
     iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
   };
-  //  const user = localStorage.getItem("user");
 
   useEffect(() => {
     socket.current.on("incoming-call", async ({ caller, offer }) => {
@@ -149,7 +143,6 @@ const ChatBox = ({ userName, closeChat }) => {
       socket.current.disconnect();
       cleanupCall();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function startLocalStream() {
@@ -195,34 +188,6 @@ const ChatBox = ({ userName, closeChat }) => {
     };
 
     return pc;
-  }
-
-  async function callUser(targetUser) {
-    if (callStatus !== "" && callStatus !== "idle") {
-      alert("Already in call or calling");
-      return;
-    }
-    setCallingTo(targetUser);
-    setCallStatus("calling");
-
-    try {
-      const pc = createPeerConnection(targetUser);
-      pcRef.current = pc;
-      const stream = await startLocalStream();
-      stream.getTracks().forEach((track) => pc.addTrack(track, stream));
-
-      const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
-
-      socket.current.emit("call-user", {
-        targetUser,
-        caller: user?._id,
-        offer,
-      });
-    } catch (err) {
-      alert("Error initiating call: " + err.message);
-      cleanupCall();
-    }
   }
 
   async function callUserByInput(targetUser) {
@@ -324,11 +289,7 @@ const ChatBox = ({ userName, closeChat }) => {
           userProfile={userProfile}
           closeChat={closeChat}
         />
-        {/* Message List */}
-
-        <h1>Video Call </h1>
-        {/* <MyVdo localVideoRef={localVideoRef} remoteVideoRef={remoteVideoRef} /> */}
-        <div style={{ marginBottom: 20 }}>
+        {/* <div style={{ marginBottom: 20 }}>
           {(callStatus === "calling" || callStatus === "in-call") && (
             <div style={{ marginBottom: 10 }}>
               <strong>Status:</strong>{" "}
@@ -337,91 +298,70 @@ const ChatBox = ({ userName, closeChat }) => {
                 : `In call with ${inCallWith}`}
             </div>
           )}
-          {(callStatus === "calling" || callStatus === "in-call") && (
-            <button
-              onClick={endCall}
-              style={{
-                background: "#f44336",
-                color: "white",
-                padding: "10px 20px",
-                borderRadius: 6,
-                cursor: "pointer",
-              }}
-            >
-              End Call
-            </button>
-          )}
-        </div>
-        {(incomingCall ||
-          callStatus === "in-call" ||
-          callStatus === "calling") && (
+        </div> */}
+        {incomingCall ||
+        callStatus === "in-call" ||
+        callStatus === "calling" ? (
           <>
-            <div className="flex border ">
-              <div className=" w-1/4  aspect-square rounded">
+            <div className="flex h-screen w-full">
+              <div className=" w-1/2  aspect-square rounded">
                 <video
                   ref={localVideoRef}
                   autoPlay
                   playsInline
-                  className="w-full border rounded-md"
+                  className="w-full aspect-video rounded-md "
                 />
               </div>
-              <div className="flex w-1/2">
+              <div className="flex w-1/2 aspect-video">
                 <video
                   ref={remoteVideoRef}
                   autoPlay
                   playsInline
-                  className="w-full aspect-square rounded"
+                  className="w-full aspect-video rounded"
                 />
               </div>
             </div>
-            <button
-              onClick={endCall}
-              style={{
-                background: "#f44336",
-                color: "white",
-                padding: "10px 20px",
-                borderRadius: 6,
-                cursor: "pointer",
-              }}
-            >
+            <button onClick={endCall} className="bg-red-500 py-2 w-ma">
               End Call.....
             </button>
           </>
+        ) : (
+          <>
+            <div className="flex-grow overflow-y-auto  p-4 rounded-lg space-y-2">
+              {chatList?.length > 0 &&
+                chatList?.map((msg, index) => (
+                  <div key={index} ref={messageRef} className="block">
+                    <p
+                      className={`text-gray-300 border px-3 bg-gray-700 my-4 py-1 rounded-full w-max ${
+                        msg.sentBy === user._id ? "ml-auto" : "mr-auto"
+                      }`}
+                    >
+                      {msg.text}
+                    </p>
+                  </div>
+                ))}
+            </div>
+
+            {/* Input Box */}
+            <div className="mt-4 flex items-end gap-x-2">
+              <textarea
+                type="text"
+                rows={1}
+                className="w-full p-2 rounded-lg bg-gray-800 border border-gray-700 placeholder-gray-400 text-white resize-none"
+                value={text}
+                onChange={handleChange}
+                placeholder="Type your message..."
+                style={{ overflow: "hidden" }}
+              />
+              <button
+                onClick={handleSendMessage}
+                className=" mt-2 bg-blue-600 py-2 px-6 rounded-lg hover:bg-blue-700"
+              >
+                Send
+              </button>
+            </div>
+          </>
         )}
-
-        <div className="flex-grow overflow-y-auto  p-4 rounded-lg space-y-2">
-          {chatList?.length > 0 &&
-            chatList?.map((msg, index) => (
-              <div key={index} ref={messageRef} className="block">
-                <p
-                  className={`text-gray-300 border px-3 bg-gray-700 my-4 py-1 rounded-full w-max ${
-                    msg.sentBy === user._id ? "ml-auto" : "mr-auto"
-                  }`}
-                >
-                  {msg.text}
-                </p>
-              </div>
-            ))}
-        </div>
-
-        {/* Input Box */}
-        <div className="mt-4 flex items-end gap-x-2">
-          <textarea
-            type="text"
-            rows={1}
-            className="w-full p-2 rounded-lg bg-gray-800 border border-gray-700 placeholder-gray-400 text-white resize-none"
-            value={text}
-            onChange={handleChange}
-            placeholder="Type your message..."
-            style={{ overflow: "hidden" }}
-          />
-          <button
-            onClick={handleSendMessage}
-            className=" mt-2 bg-blue-600 py-2 px-6 rounded-lg hover:bg-blue-700"
-          >
-            Send
-          </button>
-        </div>
       </div>
       {incomingCall && (
         <IncomingVdo
@@ -430,7 +370,6 @@ const ChatBox = ({ userName, closeChat }) => {
           declineCall={declineCall}
         />
       )}
-      {}
     </>
   );
 };

@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import { Mail, User, Camera, Edit3, MapPin, Calendar } from "lucide-react";
 import ProfilePicture from "./ProfilePicture";
+import { useSelector } from "react-redux";
 
 // ProfilePage.jsx
 // Beautiful dark mode profile page with Tailwind + lucide-react icons
 
 export default function ProfilePage({ handleLogout }) {
+  const { user } = useSelector((state) => state.user);
+
   const [showModal, setShowModal] = useState(false);
   const profile = {
     name: "Krishna Chalise",
@@ -54,10 +57,10 @@ export default function ProfilePage({ handleLogout }) {
               {/* Info */}
               <div className="flex-1">
                 <h1 className="text-2xl md:text-3xl font-bold">
-                  {profile.name}
+                  {user?.firstName} {user?.lastName}
                 </h1>
                 <p className="text-gray-400 mt-1 flex items-center gap-2">
-                  <Mail className="w-4 h-4" /> {profile.email}
+                  <Mail className="w-4 h-4" /> {user?.email}
                 </p>
                 <p className="text-gray-400 mt-1 flex items-center gap-2">
                   <MapPin className="w-4 h-4" /> {profile.location}

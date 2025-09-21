@@ -55,6 +55,9 @@ const Home = () => {
     });
   }, []);
 
+  const [childData, setChildData] = useState();
+  console.log(childData);
+
   return (
     <>
       <div className="flex overflow-hidden h-screen text-primary-softBlue">
@@ -76,6 +79,7 @@ const Home = () => {
                 chatUser={chatUser}
                 userName={userName}
                 closeChat={closeChat}
+                setChildData={setChildData}
               />
             )}
           </div>
