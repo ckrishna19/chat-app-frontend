@@ -12,8 +12,6 @@ import IncomingCall from "../components/IncommingCall";
 import VideoCall from "../components/VideoCall";
 import Feed from "../components/Feed";
 const Home = () => {
-  const socketRef = socketConnection().socket;
-
   // Redux and state management
   const dispatch = useDispatch();
   const navigate = useNavigate();
