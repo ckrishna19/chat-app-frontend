@@ -1,4 +1,7 @@
-const baseUrl = "http://localhost:4002/v1";
+const baseUrl =
+  import.meta.env.DEV === true
+    ? "http://localhost:4002/v1"
+    : "https://chat-app-backend-okz5.onrender.com/v1";
 
 const userBaseUrl = `${baseUrl}/user`;
 const messageBaseUrl = `${baseUrl}/message`;
