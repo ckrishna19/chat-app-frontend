@@ -35,10 +35,10 @@ const RegisterPage = () => {
       const { data } = await axios.post(registerApi, userInfo, {
         withCredentials: true,
       });
-      if (data.statusCode === 201) {
-        dispatch(getMyProfile(data.data));
+      if (data?.statusCode === 201) {
+        dispatch(getMyProfile(data?.data));
 
-        localStorage.setItem("user", JSON.stringify(data.data));
+        localStorage.setItem("user", JSON.stringify(data?.data));
         navigate("/");
         setUserInfo({
           email: "",
