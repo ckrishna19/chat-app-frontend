@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import { useDispatch, useSelector, useStore } from "react-redux";
 import socketConnection from "../utils/socket";
+import { MicOff, CameraOff } from "lucide-react";
 import {
   errorMessageSlice,
   loadingMessageSlice,
@@ -73,8 +74,8 @@ const ChatBox = ({ userName, closeChat }) => {
   }, [userName]);
 
   useEffect(() => {
-    if (chatList.length > 0) {
-      messageRef.current.scrollIntoView({ behavior: "smooth" });
+    if (chatList?.length > 0) {
+      messageRef?.current?.scrollIntoView({ behavior: "smooth" });
     }
   }, [chatList]);
 
@@ -321,9 +322,17 @@ const ChatBox = ({ userName, closeChat }) => {
                 />
               </div>
             </div>
-            <button onClick={endCall} className="bg-red-500 py-2 w-ma">
-              End Call.....
-            </button>
+            <div className="flex">
+              <button>
+                <MicOff size={25} color="gray" />
+              </button>
+              <button>
+                <CameraOff size={25} color="gray" />
+              </button>
+              <button onClick={endCall} className="bg-red-500 py-2 w-ma">
+                End Call.....
+              </button>
+            </div>
           </>
         ) : (
           <>

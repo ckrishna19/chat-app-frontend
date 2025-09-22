@@ -1,29 +1,24 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { getUserProfileApi } from "../redux/api";
+import { getUserProfileAction } from "../redux/action/userAction";
+import { useDispatch, useSelector } from "react-redux";
 
 const IncomingVdo = ({ incomingCall, acceptCall, declineCall }) => {
+  const { userProfile } = useSelector((state) => state?.user || {});
+
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(
+      getUserProfileAction(`${getUserProfileApi}/${incomingCall?.caller}`)
+    );
+  }, [incomingCall?.caller]);
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        backgroundColor: "rgba(0,0,0,0.75)",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        zIndex: 9999,
-      }}
-    >
-      <div
-        style={{
-          background: "white",
-          padding: 30,
-          borderRadius: 10,
-          textAlign: "center",
-          width: 320,
-        }}
-      >
+    <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50">
+      <div className="bg-gray-800 p-8 rounded-lg text-center w-80">
         <h2>Incoming Call</h2>
-        <p>{incomingCall.caller} is calling you</p>
+        <p className="my-2">
+          {userProfile?.firstName} {userProfile?.lastName} is calling you
+        </p>
         <button
           onClick={acceptCall}
           style={{

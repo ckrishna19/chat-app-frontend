@@ -54,7 +54,6 @@ const Home = () => {
   }, []);
 
   const [childData, setChildData] = useState();
-  console.log(childData);
 
   return (
     <>

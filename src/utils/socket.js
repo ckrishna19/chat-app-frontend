@@ -23,7 +23,6 @@ const socketConnection = () => {
       setConnected(true);
     });
     socket.on("disconnect", () => {
-      console.log("user disconnected..");
       setConnected(false);
     });
 
