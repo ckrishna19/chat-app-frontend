@@ -1,67 +1,102 @@
 import React from "react";
 import {
-  Video,
   Mic,
   MicOff,
-  Camera,
-  CameraOff,
+  Video,
+  VideoOff,
   PhoneOff,
-  Maximize,
+  MonitorUp,
+  MessageSquare,
   Users,
+  Monitor,
 } from "lucide-react";
 
-const VideoCallPage = ({ remoteVideoRef, localVideoRef }) => {
+export default function VideoCallPage({
+  localVideoRef,
+  remoteVideoRef,
+  endCall,
+  audio,
+  video,
+  share,
+  handleAudio,
+  handleVideo,
+  handleShare,
+  toggleAudio,
+  incomingCall,
+}) {
+  console.log(incomingCall);
   return (
-    <div className="w-screen border h-screen bg-gray-900 flex flex-col items-center justify-center relative">
-      {/* Remote video */}
-      <div className="w-full h-full flex items-center justify-center bg-black">
+    <div className="h-screen w-full bg-gray-900 flex flex-col">
+      {/* Remote Video */}
+      <div className="flex-1 relative flex items-center justify-center">
         <video
-          className="w-full h-full object-cover rounded-md"
+          className="h-full w-full object-cover"
           autoPlay
+          playsInline
           muted
           ref={remoteVideoRef}
-        ></video>
-        {/* Remote user info / participants */}
-        <div className="absolute top-4 left-4 flex items-center space-x-2 bg-gray-800 bg-opacity-50 text-white px-3 py-1 rounded-md">
-          <Users className="w-5 h-5" />
-          <span>1 Participant</span>
+        />
+        {/* Overlay for remote user name */}
+        <p className="absolute top-4 left-4 bg-black bg-opacity-60 text-white px-3 py-1 rounded-lg text-sm">
+          Krishna Chalise
+        </p>
+
+        {/* Local Video - small preview */}
+        <div className="absolute bottom-4 right-4 w-40 h-28 border-2 border-white rounded-lg overflow-hidden shadow-lg">
+          <video
+            className="h-full w-full object-cover"
+            autoPlay
+            playsInline
+            muted
+            ref={localVideoRef}
+          />
         </div>
       </div>
 
-      {/* Local video (small preview) */}
-      <div className="absolute bottom-24 right-6 w-40 h-28 bg-black rounded-md overflow-hidden border-2 border-gray-700">
-        <video
-          className="w-full h-full object-cover"
-          ref={localVideoRef}
-          autoPlay
-          muted
-        ></video>
-      </div>
-
       {/* Controls */}
-      <div className="absolute bottom-6 flex space-x-6 justify-center w-full">
-        {/* Mute */}
-        <button className="bg-gray-700 hover:bg-gray-600 p-4 rounded-full text-white flex items-center justify-center">
-          <Mic className="w-6 h-6" />
+      <div className="bg-gray-800 py-4 flex items-center justify-center gap-6">
+        {/* Mute / Unmute */}
+
+        <button
+          onClick={toggleAudio}
+          className="p-3 rounded-full bg-gray-700 hover:bg-gray-600 text-white"
+        >
+          {audio ? <Mic className="w-6 h-6" /> : <MicOff className="w-6 h-6" />}
         </button>
 
-        {/* Camera */}
-        <button className="bg-gray-700 hover:bg-gray-600 p-4 rounded-full text-white flex items-center justify-center">
-          <Camera className="w-6 h-6" />
+        {/* Video On / Off */}
+
+        <button
+          onClick={handleVideo}
+          className="p-3 rounded-full bg-gray-700 hover:bg-gray-600 text-white"
+        >
+          {video ? (
+            <Video className="w-6 h-6" />
+          ) : (
+            <VideoOff className="w-6 h-6" />
+          )}
         </button>
 
-        {/* Hang up */}
-        <button className="bg-red-600 hover:bg-red-500 p-4 rounded-full text-white flex items-center justify-center">
+        {/* Screen Share */}
+        <button
+          onClick={handleShare}
+          className="p-3 rounded-full bg-gray-700 hover:bg-gray-600 text-white"
+        >
+          {share ? (
+            <MonitorUp className="w-6 h-6" />
+          ) : (
+            <Monitor className="w-6 h-6" />
+          )}
+        </button>
+
+        {/* End Call */}
+        <button
+          onClick={endCall}
+          className="p-3 rounded-full bg-red-600 hover:bg-red-500 text-white"
+        >
           <PhoneOff className="w-6 h-6" />
-        </button>
-
-        {/* Fullscreen */}
-        <button className="bg-gray-700 hover:bg-gray-600 p-4 rounded-full text-white flex items-center justify-center">
-          <Maximize className="w-6 h-6" />
         </button>
       </div>
     </div>
   );
-};
-
-export default VideoCallPage;
+}

@@ -37,6 +37,10 @@ const ChatBox = ({ userName, closeChat }) => {
   const { socket, connected } = socketConnection();
   const messageRef = useRef();
   const dispatch = useDispatch();
+
+  const [audio, setAudio] = useState(false);
+  const [video, setVideo] = useState(true);
+  const [share, setShare] = useState(false);
   const user = JSON.parse(localStorage?.getItem("user"));
   const roomId = [userName, user?._id].join("").split("").sort().join("");
   const chatList = useSelector((state) => state?.chat?.chatMap[roomId] || []);
@@ -46,6 +50,7 @@ const ChatBox = ({ userName, closeChat }) => {
     setText(e.target.value);
   };
   const handleSendMessage = async (e) => {
+    if (text.trim() === "" || !text) return;
     e.preventDefault();
     const newMessage = { text, receivedBy: userName, sentBy: user?._id };
     const data = { roomId, newMessage };
@@ -63,6 +68,20 @@ const ChatBox = ({ userName, closeChat }) => {
     } catch (error) {
       dispatch(errorChatSlice(error.response.data.message));
     }
+  };
+
+  const handleAudio = () => {
+    if (!localStreamRef.current) return;
+    localStreamRef.current.getAudioTracks().forEach((t) => {
+      t.enabled = !t.enabled;
+      setAudio(!t.enabled);
+    });
+  };
+  const handleVideo = () => {
+    setVideo((pre) => !pre);
+  };
+  const handleShare = () => {
+    setShare((pre) => !pre);
   };
 
   useEffect(() => {
@@ -145,7 +164,6 @@ const ChatBox = ({ userName, closeChat }) => {
       cleanupCall();
     };
   }, []);
-
   async function startLocalStream() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -280,7 +298,14 @@ const ChatBox = ({ userName, closeChat }) => {
     setInCallWith(null);
     setIncomingCall(null);
   }
+  const toggleAudio = () => {
+    if (!localStreamRef.current) return;
 
+    streamRef.current.getAudioTracks().forEach((track) => {
+      track.enabled = !track.enabled; // flip between true/false
+      // update UI state
+    });
+  };
   return (
     <>
       <div className="flex flex-col h-[95vh] ">
@@ -303,37 +328,50 @@ const ChatBox = ({ userName, closeChat }) => {
         {incomingCall ||
         callStatus === "in-call" ||
         callStatus === "calling" ? (
-          <>
-            <div className="flex h-screen w-full">
-              <div className=" w-1/2  aspect-square rounded">
-                <video
-                  ref={localVideoRef}
-                  autoPlay
-                  playsInline
-                  className="w-full aspect-video rounded-md "
-                />
-              </div>
-              <div className="flex w-1/2 aspect-video">
-                <video
-                  ref={remoteVideoRef}
-                  autoPlay
-                  playsInline
-                  className="w-full aspect-video rounded"
-                />
-              </div>
-            </div>
-            <div className="flex">
-              <button>
-                <MicOff size={25} color="gray" />
-              </button>
-              <button>
-                <CameraOff size={25} color="gray" />
-              </button>
-              <button onClick={endCall} className="bg-red-500 py-2 w-ma">
-                End Call.....
-              </button>
-            </div>
-          </>
+          // <>
+          //   <div className="flex h-screen w-full">
+          //     <div className=" w-1/2  aspect-square rounded">
+          //       <video
+          //         ref={localVideoRef}
+          //         autoPlay
+          //         playsInline
+          //         className="w-full aspect-video rounded-md "
+          //       />
+          //     </div>
+          //     <div className="flex w-1/2 aspect-video">
+          //       <video
+          //         ref={remoteVideoRef}
+          //         autoPlay
+          //         playsInline
+          //         className="w-full aspect-video rounded"
+          //       />
+          //     </div>
+          //   </div>
+          //   <div className="flex">
+          //     <button>
+          //       <MicOff size={25} color="gray" />
+          //     </button>
+          //     <button>
+          //       <CameraOff size={25} color="gray" />
+          //     </button>
+          //     <button onClick={endCall} className="bg-red-500 py-2 w-ma">
+          //       End Call.....
+          //     </button>
+          //   </div>
+          // </>
+          <MyVdo
+            localVideoRef={localVideoRef}
+            remoteVideoRef={remoteVideoRef}
+            endCall={endCall}
+            share={share}
+            audio={audio}
+            video={video}
+            handleAudio={handleAudio}
+            handleShare={handleShare}
+            handleVideo={handleVideo}
+            toggleAudio={toggleAudio}
+            incomingCall={incomingCall}
+          />
         ) : (
           <>
             <div className="flex-grow overflow-y-auto  p-4 rounded-lg space-y-2">
